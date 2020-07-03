@@ -1,3 +1,4 @@
+// 方法一：不使用reduce
 // module.exports.compose = middlewares => {
 //     return function () {
 //         return dispatch(0)
@@ -16,22 +17,16 @@
 //         }
 //     }
 // }
-function next (fn) {
-  return () => {
-    if (!fn) {
-      return Promise.resolve()
-    }
-    return Promise.resolve(fn(next))
-  }
-}
+// 方法二：使用reduce
 module.exports.compose = middlewares => {
-  if (middlewares.length === 0) return
+  if (middlewares.length === 0) return arg => arg
   if (middlewares.length === 1) return middlewares[0]
-  return middlewares.reduce((a, b) => {
-    return () => {
-      return Promise.resolve(
-        a(next(b))
-      )
-    }
-  })
+  return () => Promise.resolve(
+    middlewares.reduce((a, b) => {
+      return arg => {
+        return Promise.resolve(a(() => b(arg)))
+      }
+    })(() => Promise.resolve())
+  )
 }
+// 参考资料：https://segmentfault.com/a/1190000016707187

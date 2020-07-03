@@ -8,43 +8,40 @@
 </head>
 <body>
   <script>
-    function next (fn) {
-      return () => {
-        console.log('fn', fn)
-        if (!fn) {
-          return Promise.resolve()
-        }
-        return Promise.resolve(fn(next))
-      }
-    }
     function compose (middlewares) {
-      return middlewares.reduce((a, b) => {
-        console.log(a)
-        return function () {
-          return Promise.resolve(
-            a(next(b))
-          )
-        }
-      })
+      if (middlewares.length === 0) return arg => arg
+      if (middlewares.length === 1) return middlewares[0]
+      return () => Promise.resolve(
+        middlewares.reduce((a, b) => {
+          return arg => {
+            return Promise.resolve(a(() => b(arg)))
+          }
+        })(() => Promise.resolve())
+      )
     }
     const middlewares = [
-      function fn1 (next) {
+      next => {
           console.log('1 start')
           next()
           console.log('1 end')
       },
-      function fn2 (next) {
+      next => {
           console.log('2 start')
           next()
           console.log('2 end')
       },
-      function fn3 (next) {
+      next => {
           console.log('3 start')
           next()
           console.log('3 end')
+      },
+      next => {
+          console.log('4 start')
+          next()
+          console.log('4 end')
       }
     ]
-    compose(middlewares)()
+    compose(middlewares)('omg')
   </script>
 </body>
 </html>
