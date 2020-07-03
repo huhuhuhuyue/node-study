@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    function next (fn) {
+      return () => {
+        console.log('fn', fn)
+        if (!fn) {
+          return Promise.resolve()
+        }
+        return Promise.resolve(fn(next))
+      }
+    }
+    function compose (middlewares) {
+      return middlewares.reduce((a, b) => {
+        console.log(a)
+        return function () {
+          return Promise.resolve(
+            a(next(b))
+          )
+        }
+      })
+    }
+    const middlewares = [
+      function fn1 (next) {
+          console.log('1 start')
+          next()
+          console.log('1 end')
+      },
+      function fn2 (next) {
+          console.log('2 start')
+          next()
+          console.log('2 end')
+      },
+      function fn3 (next) {
+          console.log('3 start')
+          next()
+          console.log('3 end')
+      }
+    ]
+    compose(middlewares)()
+  </script>
+</body>
+</html>
