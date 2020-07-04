@@ -19,12 +19,16 @@
 // }
 // 方法二：使用reduce
 module.exports.compose = middlewares => {
-  if (middlewares.length === 0) return arg => arg
-  if (middlewares.length === 1) return middlewares[0]
+  if (middlewares.length === 0) return () => Promise.resolve(arg => arg)
+  if (middlewares.length === 1) {
+    return () => Promise.resolve(
+      ((...args) => middlewares[0](...args))(() => Promise.resolve())
+    )
+  }
   return () => Promise.resolve(
     middlewares.reduce((a, b) => {
-      return arg => {
-        return Promise.resolve(a(() => b(arg)))
+      return (...arg) => {
+        return Promise.resolve(a(() => b(...arg)))
       }
     })(() => Promise.resolve())
   )
