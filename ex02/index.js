@@ -33,4 +33,4 @@ module.exports.compose = middlewares => {
     })(() => Promise.resolve())
   )
 }
-// 参考资料：https://segmentfault.com/a/1190000016707187
+// 参考资料：https://segmentfault.com/a/1190000016707187、https://github.com/su37josephxia/compose-awesome
